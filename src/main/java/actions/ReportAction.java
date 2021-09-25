@@ -7,11 +7,13 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import actions.views.EmployeeView;
+import actions.views.FavoriteView;
 import actions.views.ReportView;
 import constants.AttributeConst;
 import constants.ForwardConst;
 import constants.JpaConst;
 import constants.MessageConst;
+import services.FavoriteService;
 import services.ReportService;
 
 /**
@@ -149,6 +151,8 @@ public class ReportAction extends ActionBase {
 
         //idを条件に日報データを取得する
         ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+        //セッションからログイン中の従業員情報を取得
+        EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
 
         if (rv == null) {
             //該当の日報データが存在しない場合はエラー画面を表示
@@ -156,7 +160,29 @@ public class ReportAction extends ActionBase {
 
         } else {
 
+            //セッションにフラッシュメッセージが設定されている場合はリクエストスコープに移し替え、セッションからは削除する
+            String flush = getSessionScope(AttributeConst.FLUSH);
+            if (flush != null) {
+                putRequestScope(AttributeConst.FLUSH, flush);
+                removeSessionScope(AttributeConst.FLUSH);
+            }
+
+            // FovoriteServiceインスタンスを生成
+            FavoriteService fs = new FavoriteService();
+            // ログインしている従業員が子の日報にいいねしているか判定
+            Boolean favorite_flag = fs.getFavoriteCountByEmployeeANDReport(ev, rv);
+            // この日報にいいねしている情報一覧を取得
+            List<FavoriteView> favorites = fs.getFavoritesByReport(rv);
+            // その日報にいいねしている人数を取得
+            Integer favorites_count = favorites.size();
+
+
+            // リクエストスコープにパラメータをセット
             putRequestScope(AttributeConst.REPORT, rv); //取得した日報データ
+            putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
+            putRequestScope(AttributeConst.FAV_FLAG, favorite_flag);// すでにいいねしているかのフラグ
+            putRequestScope(AttributeConst.FAV_FAVORITES, favorites);// いいね一覧
+            putRequestScope(AttributeConst.FAV_COUNT, favorites_count);// いいね数
 
             //詳細画面を表示
             forward(ForwardConst.FW_REP_SHOW);

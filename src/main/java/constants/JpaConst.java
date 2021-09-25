@@ -32,17 +32,31 @@ public interface JpaConst {
     String REP_COL_REP_DATE = "report_date"; //いつの日報かを示す日付
     String REP_COL_TITLE = "title"; //日報のタイトル
     String REP_COL_CONTENT = "content"; //日報の内容
+    String REP_COL_START_TIME = "start_time"; //出勤時間
+    String REP_COL_END_TIME = "end_time"; //退勤時間
     String REP_COL_CREATED_AT = "created_at"; //登録日時
     String REP_COL_UPDATED_AT = "updated_at"; //更新日時
+
+    //お気に入りテーブル
+    String TABLE_FAV = "favorites"; //テーブル名
+    //お気に入りテーブルカラム
+    String FAV_COL_ID = "id"; //id
+    String FAV_COL_EMP = "employee_id"; //お気に入りをした従業員のid
+    String FAV_COL_REP = "report_id"; //お気に入りをされた日報のid
+    String FAV_COL_CREATED_AT = "created_at"; //登録日時
+    String FAV_COL_UPDATED_AT = "updated_at"; //更新日時
 
     //Entity名
     String ENTITY_EMP = "employee"; //従業員
     String ENTITY_REP = "report"; //日報
+    String ENTITY_FAV = "favorite"; // お気に入り
 
     //JPQL内パラメータ
     String JPQL_PARM_CODE = "code"; //社員番号
     String JPQL_PARM_PASSWORD = "password"; //パスワード
     String JPQL_PARM_EMPLOYEE = "employee"; //従業員
+    String JPQL_PARM_REPORT = "report"; //日報
+
 
     //NamedQueryの nameとquery
     //全ての従業員をidの降順に取得する
@@ -69,5 +83,15 @@ public interface JpaConst {
     //指定した従業員が作成した日報の件数を取得する
     String Q_REP_COUNT_ALL_MINE = ENTITY_REP + ".countAllMine";
     String Q_REP_COUNT_ALL_MINE_DEF = "SELECT COUNT(r) FROM Report AS r WHERE r.employee = :" + JPQL_PARM_EMPLOYEE;
+
+    //ログイン従業員が注目している日報の件数をいいねしている件数をカウントする
+    String Q_FAV_FAVORITE_COUNT_BY_EMPLOYEE_AND_REPORT = "getFavoriteCountByEmployeeANDReport";
+    String Q_FAV_FAVORITE_COUNT_BY_EMPLOYEE_AND_REPORT_DEF = "SELECT COUNT(f) FROM Favorite AS f WHERE f.employee = :" + JPQL_PARM_EMPLOYEE + " AND f.report = :" + JPQL_PARM_REPORT;
+    //ログイン従業員が注目している日報の件数をいいねしているFavoriteインスタンスを取得
+    String Q_FAV_GET_FAVORITE_BY_EMPLOYEE_AND_REPORT = "getFavoriteByEmployeeANDReport";
+    String Q_FAV_GET_FAVORITE_BY_EMPLOYEE_AND_REPORT_DEF = "SELECT f FROM Favorite AS f WHERE f.employee = :" + JPQL_PARM_EMPLOYEE + " AND f.report = :" + JPQL_PARM_REPORT;
+    //注目している日報をいいねしているFavoriteのインスタンスリストを取得
+    String Q_FAV_GET_FAVORITES_BY_REPORT = "getFavoritesByReport";
+    String Q_FAV_GET_FAVORITES_BY_REPORT_DEF = "SELECT f FROM Favorite AS f WHERE f.report = :" + JPQL_PARM_REPORT;
 
 }

@@ -85,13 +85,13 @@ public class Report {
     /**
      * 出勤時間
      */
-    @Column(name = "start_time", length = 255, nullable = false)
+    @Column(name = JpaConst.REP_COL_START_TIME, length = 255, nullable = false)
     private String start_time;
 
     /**
      * 退勤時間
      */
-    @Column(name = "end_time", length = 255, nullable = false)
+    @Column(name = JpaConst.REP_COL_END_TIME, length = 255, nullable = false)
     private String end_time;
 
 
