@@ -111,6 +111,8 @@ public class ReportAction extends ActionBase {
                     day,
                     getRequestParam(AttributeConst.REP_TITLE),
                     getRequestParam(AttributeConst.REP_CONTENT),
+                    request.getParameter("start_time"),
+                    request.getParameter("end_time"),
                     null,
                     null);
 
@@ -205,6 +207,8 @@ public class ReportAction extends ActionBase {
             rv.setReportDate(toLocalDate(getRequestParam(AttributeConst.REP_DATE)));
             rv.setTitle(getRequestParam(AttributeConst.REP_TITLE));
             rv.setContent(getRequestParam(AttributeConst.REP_CONTENT));
+            rv.setStart_time(request.getParameter("start_time"));
+            rv.setEnd_time(request.getParameter("end_time"));
 
             //日報データを更新する
             List<String> errors = service.update(rv);

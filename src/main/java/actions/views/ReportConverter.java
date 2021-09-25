@@ -23,6 +23,8 @@ public class ReportConverter {
                 rv.getReportDate(),
                 rv.getTitle(),
                 rv.getContent(),
+                rv.getStart_time(),
+                rv.getEnd_time(),
                 rv.getCreatedAt(),
                 rv.getUpdatedAt());
     }
@@ -44,6 +46,8 @@ public class ReportConverter {
                 r.getReportDate(),
                 r.getTitle(),
                 r.getContent(),
+                r.getStart_time(),
+                r.getEnd_time(),
                 r.getCreatedAt(),
                 r.getUpdatedAt());
     }
@@ -74,6 +78,8 @@ public class ReportConverter {
         r.setReportDate(rv.getReportDate());
         r.setTitle(rv.getTitle());
         r.setContent(rv.getContent());
+        r.setStart_time(rv.getStart_time());
+        r.setEnd_time(rv.getEnd_time());
         r.setCreatedAt(rv.getCreatedAt());
         r.setUpdatedAt(rv.getUpdatedAt());
 
@@ -89,6 +95,8 @@ public class ReportConverter {
         rv.setEmployee(EmployeeConverter.toView(r.getEmployee()));
         rv.setReportDate(r.getReportDate());
         rv.setTitle(r.getTitle());
+        rv.setStart_time(r.getStart_time());
+        rv.setEnd_time(r.getEnd_time());
         rv.setCreatedAt(r.getCreatedAt());
         rv.setUpdatedAt(r.getUpdatedAt());
     }
