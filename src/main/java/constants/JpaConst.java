@@ -46,10 +46,20 @@ public interface JpaConst {
     String FAV_COL_CREATED_AT = "created_at"; //登録日時
     String FAV_COL_UPDATED_AT = "updated_at"; //更新日時
 
+    //フォロー入りテーブル
+    String TABLE_FLW = "follows"; //テーブル名
+    //フォローテーブルカラム
+    String FLW_COL_ID = "id"; //id
+    String FLW_COL_FOLLOW = "follow_id"; //フォローする従業員のid
+    String FLW_COL_FOLLOWER = "follower_id"; //フォローされる従業員のid
+    String FLW_COL_CREATED_AT = "created_at"; //登録日時
+    String FLW_COL_UPDATED_AT = "updated_at"; //更新日時
+
     //Entity名
     String ENTITY_EMP = "employee"; //従業員
     String ENTITY_REP = "report"; //日報
     String ENTITY_FAV = "favorite"; // お気に入り
+    String ENTITY_FLW = "follow"; // フォロー
 
     //JPQL内パラメータ
     String JPQL_PARM_CODE = "code"; //社員番号
@@ -93,5 +103,8 @@ public interface JpaConst {
     //注目している日報をいいねしているFavoriteのインスタンスリストを取得
     String Q_FAV_GET_FAVORITES_BY_REPORT = "getFavoritesByReport";
     String Q_FAV_GET_FAVORITES_BY_REPORT_DEF = "SELECT f FROM Favorite AS f WHERE f.report = :" + JPQL_PARM_REPORT;
+    //注目している従業員が日報をいいねしているFavoriteのインスタンスリストを取得
+    String Q_FAV_GET_FAVORITES_BY_EMPLOYEE = "getFavoritesByEmployee";
+    String Q_FAV_GET_FAVORITES_BY_EMPLOYEE_DEF = "SELECT f FROM Favorite AS f WHERE f.employee = :" + JPQL_PARM_EMPLOYEE;
 
 }

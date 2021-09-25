@@ -48,7 +48,8 @@ public enum AttributeConst {
 	//お気に入り管理
 	FAV_FLAG("favorite_flag"),
 	FAV_COUNT("favorites_count"),
-	FAV_FAVORITES("favorites");
+	FAV_FAVORITES("favorites"),
+	FAV_FAVORITES_BY_EMPLOYEE("favorites_by_employee");
 
     private final String text;
     private final Integer i;

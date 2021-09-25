@@ -33,7 +33,10 @@ import lombok.Setter;
             query = JpaConst.Q_FAV_GET_FAVORITE_BY_EMPLOYEE_AND_REPORT_DEF),
     @NamedQuery(
             name = JpaConst.Q_FAV_GET_FAVORITES_BY_REPORT,
-            query = JpaConst.Q_FAV_GET_FAVORITES_BY_REPORT_DEF)
+            query = JpaConst.Q_FAV_GET_FAVORITES_BY_REPORT_DEF),
+    @NamedQuery(
+            name = JpaConst.Q_FAV_GET_FAVORITES_BY_EMPLOYEE,
+            query = JpaConst.Q_FAV_GET_FAVORITES_BY_EMPLOYEE_DEF)
 
 })
 

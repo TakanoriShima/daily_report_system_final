@@ -9,6 +9,7 @@ import actions.views.FavoriteConverter;
 import actions.views.FavoriteView;
 import actions.views.ReportConverter;
 import actions.views.ReportView;
+import constants.JpaConst;
 import models.Employee;
 import models.Favorite;
 import models.Report;
@@ -88,5 +89,23 @@ public class FavoriteService extends ServiceBase {
 				.getResultList();
 		return FavoriteConverter.toViewList(favorites);
 	}
+
+
+	 /**
+     * 指定した従業員のお気に入りした一覧を取得
+     * @param ev EmployeeViewインスタンス
+     * @return 一覧画面に表示するお気に入りデータのリスト
+     */
+    public List<FavoriteView> getFavoritesByEmployee(EmployeeView ev) {
+
+    	Employee e = EmployeeConverter.toModel(ev);
+
+        List<Favorite> favorites_by_employee = em.createNamedQuery(JpaConst.Q_FAV_GET_FAVORITES_BY_EMPLOYEE, Favorite.class)
+        		.setParameter("employee", e)
+//                .setFirstResult(JpaConst.ROW_PER_PAGE * (page - 1))
+//                .setMaxResults(JpaConst.ROW_PER_PAGE)
+                .getResultList();
+        return FavoriteConverter.toViewList(favorites_by_employee);
+    }
 
 }

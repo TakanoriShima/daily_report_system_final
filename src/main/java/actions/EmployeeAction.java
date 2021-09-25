@@ -6,12 +6,14 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import actions.views.EmployeeView;
+import actions.views.ReportView;
 import constants.AttributeConst;
 import constants.ForwardConst;
 import constants.JpaConst;
 import constants.MessageConst;
 import constants.PropertyConst;
 import services.EmployeeService;
+import services.ReportService;
 
 /**
  * 従業員に関わる処理を行うActionクラス
@@ -43,7 +45,7 @@ public class EmployeeAction extends ActionBase {
 
 	public void index() throws ServletException, IOException {
 		//管理者かどうかのチェック //追記
-		if (checkAdmin()) { //追記
+//		if (checkAdmin()) { //追記
 
 			//指定されたページ数の一覧画面に表示するデータを取得
 			int page = getPage();
@@ -66,7 +68,7 @@ public class EmployeeAction extends ActionBase {
 
 			//一覧画面を表示
 			forward(ForwardConst.FW_EMP_INDEX);
-		}
+//		}
 	}
 
 	public void entryNew() throws ServletException, IOException {
@@ -135,9 +137,22 @@ public class EmployeeAction extends ActionBase {
 	 */
 	public void show() throws ServletException, IOException {
 		//管理者かどうかのチェック //追記
-		if (checkAdmin()) { //追記
+//		if (checkAdmin()) { //追記
 			//idを条件に従業員データを取得する
 			EmployeeView ev = service.findOne(toNumber(getRequestParam(AttributeConst.EMP_ID)));
+
+			ReportService rs = new ReportService();
+			//注目している従業員が作成した日報データを、指定されたページ数の一覧画面に表示する分取得する
+	        int page = getPage();
+	        List<ReportView> reports = rs.getMinePerPage(ev, page);
+
+	        //注目している従業員が作成した日報データの件数を取得
+	        long myReportsCount = rs.countAllMine(ev);
+
+	        putRequestScope(AttributeConst.REPORTS, reports); //取得した日報データ
+	        putRequestScope(AttributeConst.REP_COUNT, myReportsCount); //ログイン中の従業員が作成した日報の数
+	        putRequestScope(AttributeConst.PAGE, page); //ページ数
+	        putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
 
 			if (ev == null || ev.getDeleteFlag() == AttributeConst.DEL_FLAG_TRUE.getIntegerValue()) {
 
@@ -150,7 +165,7 @@ public class EmployeeAction extends ActionBase {
 
 			//詳細画面を表示
 			forward(ForwardConst.FW_EMP_SHOW);
-		}
+//		}
 	}
 
 	/**
