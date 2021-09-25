@@ -42,9 +42,14 @@ public class LoginFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         String contextPath = ((HttpServletRequest) request).getContextPath();
+        System.out.println("**********");
+        System.out.println("contextPath: " + contextPath);
         String servletPath = ((HttpServletRequest) request).getServletPath();
-
+        System.out.println("servletPath: " + servletPath);
+        System.out.println("contextPath + servletPath:  " + contextPath + servletPath);
+        System.out.println("**********");
         if (servletPath.matches("/css.*")) {
+        	System.out.println("LogFilter除外");
             // CSSフォルダ内は認証処理から除外する
             chain.doFilter(request, response);
 
@@ -54,12 +59,15 @@ public class LoginFilter implements Filter {
             //クエリパラメータからactionとcommandを取得
             String action = request.getParameter(ForwardConst.ACT.getValue());
             String command = request.getParameter(ForwardConst.CMD.getValue());
+            System.out.println("action = " + action);
+            System.out.println("command = " + command);
 
             //セッションからログインしている従業員の情報を取得
             EmployeeView ev = (EmployeeView) session.getAttribute(AttributeConst.LOGIN_EMP.getValue());
 
             if (ev == null) {
                 //未ログイン
+            	System.out.println("未ログイン");
 
                 if (!(ForwardConst.ACT_AUTH.getValue().equals(action)
                         && (ForwardConst.CMD_SHOW_LOGIN.getValue().equals(command)
@@ -70,14 +78,17 @@ public class LoginFilter implements Filter {
                             contextPath
                                     + "?action=" + ForwardConst.ACT_AUTH.getValue()
                                     + "&command=" + ForwardConst.CMD_SHOW_LOGIN.getValue());
+                    System.out.println("リダイレクト先: " + contextPath
+                                    + "?action=" + ForwardConst.ACT_AUTH.getValue()
+                                    + "&command=" + ForwardConst.CMD_SHOW_LOGIN.getValue());
                     return;
                 }
             } else {
                 //ログイン済
-
+            	System.out.println("ログイン済");
                 if (ForwardConst.ACT_AUTH.getValue().equals(action)) {
                     //認証系Actionを行おうとしている場合
-
+                	System.out.println("認証系Actionを行おうとしている");
                     if (ForwardConst.CMD_SHOW_LOGIN.getValue().equals(command)) {
                         //ログインページの表示はトップ画面にリダイレクト
                         ((HttpServletResponse) response).sendRedirect(
@@ -88,10 +99,11 @@ public class LoginFilter implements Filter {
 
                     } else if (ForwardConst.CMD_LOGOUT.getValue().equals(command)) {
                         //ログアウトの実施は許可
+                    	System.out.println("ログアウトの実施");
 
                     } else {
                         //上記以外の認証系Actionはエラー画面
-
+                    	System.out.println("上記以外の認証系Actionでエラー");
                         String forward = String.format("/WEB-INF/views/%s.jsp", "error/unknown");
                         RequestDispatcher dispatcher = request.getRequestDispatcher(forward);
                         dispatcher.forward(request, response);

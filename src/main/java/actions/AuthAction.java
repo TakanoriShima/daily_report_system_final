@@ -62,9 +62,11 @@ public class AuthAction extends ActionBase {
     public void login() throws ServletException, IOException {
 
         String code = getRequestParam(AttributeConst.EMP_CODE);
+//        String code = request.getParameter("code");
         String plainPass = getRequestParam(AttributeConst.EMP_PASS);
+//        String plainPass = request.getParameter("password");
         String pepper = getContextScope(PropertyConst.PEPPER);
-
+//        String pepper = (String)context.getAttribute("pepper");
         //有効な従業員か認証する
         Boolean isValidEmployee = service.validateLogin(code, plainPass, pepper);
 
