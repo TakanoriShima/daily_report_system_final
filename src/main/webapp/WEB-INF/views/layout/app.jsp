@@ -11,6 +11,7 @@
 
 <c:set var="commIdx" value="${ForwardConst.CMD_INDEX.getValue()}" />
 <c:set var="commOut" value="${ForwardConst.CMD_LOGOUT.getValue()}" />
+<c:set var="commFollowEmployeesReports" value="${ForwardConst.CMD_FOL_REPORTS.getValue()}" />
 
 <!DOCTYPE html>
 <html lang="ja">
@@ -31,6 +32,7 @@
 
                     <a href="<c:url value='?action=${actRep}&command=${commIdx}' />">日報管理</a>&nbsp;
                     <a href="<c:url value='?action=${actFav}&command=${commIdx}' />">お気に入り日報一覧</a>&nbsp;
+                    <a href="<c:url value='?action=${actEmp}&command=${commFollowEmployeesReports}' />">フォローしている従業員の日報一覧</a>&nbsp;
 
                 </c:if>
             </div>

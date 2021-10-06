@@ -8,6 +8,7 @@ public enum ForwardConst {
     ACT_REP("Report"),
     ACT_AUTH("Auth"),
     ACT_FAV("Favorite"),
+    ACT_FOL("Follow"),
 
     //command
     CMD("command"),
@@ -22,6 +23,7 @@ public enum ForwardConst {
     CMD_EDIT("edit"),
     CMD_UPDATE("update"),
     CMD_DESTROY("destroy"),
+    CMD_FOL_REPORTS("followEmployeesReports"),
 
     //jsp
     FW_ERR_UNKNOWN("error/unknown"),
@@ -35,7 +37,8 @@ public enum ForwardConst {
     FW_REP_SHOW("reports/show"),
     FW_REP_NEW("reports/new"),
     FW_REP_EDIT("reports/edit"),
-	FW_FAV_INDEX("favorites/index");
+	FW_FAV_INDEX("favorites/index"),
+	FW_FOL_REP_INDEX("follows/rep_index");
 
     /**
      * 文字列

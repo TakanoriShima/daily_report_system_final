@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import constants.JpaConst;
@@ -22,18 +24,15 @@ import lombok.Setter;
  *
  */
 @Table(name = JpaConst.TABLE_FLW)
-//@NamedQueries({
-//    @NamedQuery(
-//            name = JpaConst.Q_FAV_FAVORITE_COUNT_BY_EMPLOYEE_AND_REPORT,
-//            query = JpaConst.Q_FAV_FAVORITE_COUNT_BY_EMPLOYEE_AND_REPORT_DEF),
-//    @NamedQuery(
-//            name = JpaConst.Q_FAV_GET_FAVORITE_BY_EMPLOYEE_AND_REPORT,
-//            query = JpaConst.Q_FAV_GET_FAVORITE_BY_EMPLOYEE_AND_REPORT_DEF),
-//    @NamedQuery(
-//            name = JpaConst.Q_FAV_GET_FAVORITES_BY_REPORT,
-//            query = JpaConst.Q_FAV_GET_FAVORITES_BY_REPORT_DEF)
-//
-//})
+@NamedQueries({
+    @NamedQuery(
+            name = JpaConst.Q_FOL_GET_FOLLOW_BY_FOLLOW_AND_FOLLOWER,
+            query = JpaConst.Q_FOL_GET_FOLLOW_BY_FOLLOW_AND_FOLLOWER_DEF),
+    @NamedQuery(
+            name = JpaConst.Q_FOL_FOLLOW_COUNT_BY_FOLLOW_AND_FOLLOWER,
+            query = JpaConst.Q_FOL_FOLLOW_COUNT_BY_FOLLOW_AND_FOLLOWER_DEF)
+
+})
 
 @Getter //全てのクラスフィールドについてgetterを自動生成する(Lombok)
 @Setter //全てのクラスフィールドについてsetterを自動生成する(Lombok)

@@ -7,8 +7,10 @@ import javax.persistence.NoResultException;
 
 import actions.views.EmployeeConverter;
 import actions.views.EmployeeView;
+import actions.views.ReportView;
 import constants.JpaConst;
 import models.Employee;
+import models.Report;
 import models.validators.EmployeeValidator;
 import utils.EncryptUtil;
 
@@ -252,6 +254,15 @@ public class EmployeeService extends ServiceBase {
         Employee e = findOneInternal(ev.getId());
         EmployeeConverter.copyViewToModel(e, ev);
         em.getTransaction().commit();
+
+    }
+
+    // 注目している従業員がフォローしている従業員の日報一覧を取得
+    public List<ReportView> getFollowEmployeesReports(EmployeeView ev){
+    	@SuppressWarnings("unchecked")
+		List<ReportView> rvs = (List<ReportView>)em.createNativeQuery("SELECT reports.id, reports.employee_id, reports.report_date, reports.title, reports.content, reports.start_time, reports.end_time, reports.created_at, reports.updated_at FROM reports JOIN follows ON reports.employee_id=follows.follower_id WHERE follows.follow_id=:follow_id", Report.class)
+    			.setParameter("follow_id", ev.getId()).getResultList();
+    	return rvs;
 
     }
 

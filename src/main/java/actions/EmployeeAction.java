@@ -13,6 +13,7 @@ import constants.JpaConst;
 import constants.MessageConst;
 import constants.PropertyConst;
 import services.EmployeeService;
+import services.FollowService;
 import services.ReportService;
 
 /**
@@ -45,30 +46,30 @@ public class EmployeeAction extends ActionBase {
 
 	public void index() throws ServletException, IOException {
 		//管理者かどうかのチェック //追記
-//		if (checkAdmin()) { //追記
+		//		if (checkAdmin()) { //追記
 
-			//指定されたページ数の一覧画面に表示するデータを取得
-			int page = getPage();
-			List<EmployeeView> employees = service.getPerPage(page);
+		//指定されたページ数の一覧画面に表示するデータを取得
+		int page = getPage();
+		List<EmployeeView> employees = service.getPerPage(page);
 
-			//全ての従業員データの件数を取得
-			long employeeCount = service.countAll();
+		//全ての従業員データの件数を取得
+		long employeeCount = service.countAll();
 
-			putRequestScope(AttributeConst.EMPLOYEES, employees); //取得した従業員データ
-			putRequestScope(AttributeConst.EMP_COUNT, employeeCount); //全ての従業員データの件数
-			putRequestScope(AttributeConst.PAGE, page); //ページ数
-			putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
+		putRequestScope(AttributeConst.EMPLOYEES, employees); //取得した従業員データ
+		putRequestScope(AttributeConst.EMP_COUNT, employeeCount); //全ての従業員データの件数
+		putRequestScope(AttributeConst.PAGE, page); //ページ数
+		putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
 
-			//セッションにフラッシュメッセージが設定されている場合はリクエストスコープに移し替え、セッションからは削除する
-			String flush = getSessionScope(AttributeConst.FLUSH);
-			if (flush != null) {
-				putRequestScope(AttributeConst.FLUSH, flush);
-				removeSessionScope(AttributeConst.FLUSH);
-			}
+		//セッションにフラッシュメッセージが設定されている場合はリクエストスコープに移し替え、セッションからは削除する
+		String flush = getSessionScope(AttributeConst.FLUSH);
+		if (flush != null) {
+			putRequestScope(AttributeConst.FLUSH, flush);
+			removeSessionScope(AttributeConst.FLUSH);
+		}
 
-			//一覧画面を表示
-			forward(ForwardConst.FW_EMP_INDEX);
-//		}
+		//一覧画面を表示
+		forward(ForwardConst.FW_EMP_INDEX);
+		//		}
 	}
 
 	public void entryNew() throws ServletException, IOException {
@@ -137,35 +138,43 @@ public class EmployeeAction extends ActionBase {
 	 */
 	public void show() throws ServletException, IOException {
 		//管理者かどうかのチェック //追記
-//		if (checkAdmin()) { //追記
-			//idを条件に従業員データを取得する
-			EmployeeView ev = service.findOne(toNumber(getRequestParam(AttributeConst.EMP_ID)));
+		//		if (checkAdmin()) { //追記
+		//idを条件に従業員データを取得する
+		EmployeeView ev = service.findOne(toNumber(getRequestParam(AttributeConst.EMP_ID)));
 
-			ReportService rs = new ReportService();
-			//注目している従業員が作成した日報データを、指定されたページ数の一覧画面に表示する分取得する
-	        int page = getPage();
-	        List<ReportView> reports = rs.getMinePerPage(ev, page);
+		ReportService rs = new ReportService();
+		//注目している従業員が作成した日報データを、指定されたページ数の一覧画面に表示する分取得する
+		int page = getPage();
+		List<ReportView> reports = rs.getMinePerPage(ev, page);
 
-	        //注目している従業員が作成した日報データの件数を取得
-	        long myReportsCount = rs.countAllMine(ev);
+		//注目している従業員が作成した日報データの件数を取得
+		long myReportsCount = rs.countAllMine(ev);
 
-	        putRequestScope(AttributeConst.REPORTS, reports); //取得した日報データ
-	        putRequestScope(AttributeConst.REP_COUNT, myReportsCount); //ログイン中の従業員が作成した日報の数
-	        putRequestScope(AttributeConst.PAGE, page); //ページ数
-	        putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
+		FollowService fs = new FollowService();
+		//セッションからログイン中の従業員情報を取得
+		EmployeeView follow_v = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+		// ログインしている従業員がその従業員をフォローしているか判定
+		Boolean follow_flag = fs.getFollowCountByFollowANDFollower(follow_v, ev);
 
-			if (ev == null || ev.getDeleteFlag() == AttributeConst.DEL_FLAG_TRUE.getIntegerValue()) {
+		putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
+		putRequestScope(AttributeConst.REPORTS, reports); //取得した日報データ
+		putRequestScope(AttributeConst.REP_COUNT, myReportsCount); //ログイン中の従業員が作成した日報の数
+		putRequestScope(AttributeConst.PAGE, page); //ページ数
+		putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
+		putRequestScope(AttributeConst.FOL_FLAG, follow_flag);// すでにフォローしているかのフラグ
 
-				//データが取得できなかった、または論理削除されている場合はエラー画面を表示
-				forward(ForwardConst.FW_ERR_UNKNOWN);
-				return;
-			}
+		if (ev == null || ev.getDeleteFlag() == AttributeConst.DEL_FLAG_TRUE.getIntegerValue()) {
 
-			putRequestScope(AttributeConst.EMPLOYEE, ev); //取得した従業員情報
+			//データが取得できなかった、または論理削除されている場合はエラー画面を表示
+			forward(ForwardConst.FW_ERR_UNKNOWN);
+			return;
+		}
 
-			//詳細画面を表示
-			forward(ForwardConst.FW_EMP_SHOW);
-//		}
+		putRequestScope(AttributeConst.EMPLOYEE, ev); //取得した従業員情報
+
+		//詳細画面を表示
+		forward(ForwardConst.FW_EMP_SHOW);
+		//		}
 	}
 
 	/**
@@ -288,5 +297,60 @@ public class EmployeeAction extends ActionBase {
 			return true;
 		}
 
+	}
+
+	/**
+	 * 自分がフォローしている従業員の日報一覧を表示する
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	public void followEmployeesReports() throws ServletException, IOException {
+
+		//セッションからログイン中の従業員情報を取得
+		EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+
+//		System.out.println("フォロー日報一覧" + ev.getName());
+
+		List<ReportView> reports = service.getFollowEmployeesReports(ev);
+//		System.out.println("日報数は" + rvs.size());
+		putRequestScope(AttributeConst.REPORTS, reports); //取得した日報データ
+		putRequestScope(AttributeConst.REP_COUNT, reports.size()); //取得した日報データ
+        //一覧画面を表示
+        forward(ForwardConst.FW_FOL_REP_INDEX);
+
+//		EmployeeView ev = service.findOne(toNumber(getRequestParam(AttributeConst.EMP_ID)));
+//
+//		ReportService rs = new ReportService();
+//		//注目している従業員が作成した日報データを、指定されたページ数の一覧画面に表示する分取得する
+//		int page = getPage();
+//		List<ReportView> reports = rs.getMinePerPage(ev, page);
+//
+//		//注目している従業員が作成した日報データの件数を取得
+//		long myReportsCount = rs.countAllMine(ev);
+//
+//		FollowService fs = new FollowService();
+//
+//		// ログインしている従業員がその従業員をフォローしているか判定
+//		Boolean follow_flag = fs.getFollowCountByFollowANDFollower(follow_v, ev);
+
+//		putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
+//		putRequestScope(AttributeConst.REPORTS, reports); //取得した日報データ
+//		putRequestScope(AttributeConst.REP_COUNT, myReportsCount); //ログイン中の従業員が作成した日報の数
+//		putRequestScope(AttributeConst.PAGE, page); //ページ数
+//		putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
+//		putRequestScope(AttributeConst.FOL_FLAG, follow_flag);// すでにフォローしているかのフラグ
+//
+//		if (ev == null || ev.getDeleteFlag() == AttributeConst.DEL_FLAG_TRUE.getIntegerValue()) {
+//
+//			//データが取得できなかった、または論理削除されている場合はエラー画面を表示
+//			forward(ForwardConst.FW_ERR_UNKNOWN);
+//			return;
+//		}
+//
+//		putRequestScope(AttributeConst.EMPLOYEE, ev); //取得した従業員情報
+//
+//		//詳細画面を表示
+//		forward(ForwardConst.FW_EMP_SHOW);
+//		//		}
 	}
 }

@@ -9,21 +9,23 @@ import javax.servlet.ServletException;
 
 import actions.views.EmployeeView;
 import actions.views.FavoriteView;
+import actions.views.FollowView;
 import actions.views.ReportView;
 import constants.AttributeConst;
 import constants.ForwardConst;
 import constants.JpaConst;
 import constants.MessageConst;
+import services.EmployeeService;
 import services.FavoriteService;
-import services.ReportService;
+import services.FollowService;
 
 /**
  * 日報に関する処理を行うActionクラス
  *
  */
-public class ReportAction extends ActionBase {
+public class FollowAction extends ActionBase {
 
-    private ReportService service;
+    private FollowService service;
 
     /**
      * メソッドを実行する
@@ -31,7 +33,7 @@ public class ReportAction extends ActionBase {
     @Override
     public void process() throws ServletException, IOException {
 
-        service = new ReportService();
+        service = new FollowService();
 
         //メソッドを実行
         invoke();
@@ -98,46 +100,38 @@ public class ReportAction extends ActionBase {
      * @throws IOException
      */
     public void create() throws ServletException, IOException {
+//    	System.out.println("Follow#Create");
 
         //CSRF対策 tokenのチェック
         if (checkToken()) {
 
-            //日報の日付が入力されていなければ、今日の日付を設定
-            LocalDate day = null;
-            if (getRequestParam(AttributeConst.REP_DATE) == null
-                    || getRequestParam(AttributeConst.REP_DATE).equals("")) {
-                day = LocalDate.now();
-            } else {
-                day = LocalDate.parse(getRequestParam(AttributeConst.REP_DATE));
-            }
+        	EmployeeService es = new EmployeeService();
 
             //セッションからログイン中の従業員情報を取得
-            EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+            EmployeeView follow_v = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+            //リクエストパラメータからフォローする従業員インスタンスを取得
+            EmployeeView follower_v = es.findOne(toNumber(getRequestParam(AttributeConst.FOL_FOLLOWER_ID)));
 
-            //パラメータの値をもとに日報情報のインスタンスを作成する
-            ReportView rv = new ReportView(
+            //パラメータの値をもとにフォロー情報のインスタンスを作成する
+            FollowView fv = new FollowView(
                     null,
-                    ev, //ログインしている従業員を、日報作成者として登録する
-                    day,
-                    getRequestParam(AttributeConst.REP_TITLE),
-                    getRequestParam(AttributeConst.REP_CONTENT),
-                    request.getParameter("start_time"),
-                    request.getParameter("end_time"),
+                    follow_v, //ログインしている従業員を、日報作成者として登録する
+                    follower_v,
                     null,
                     null);
 
-            //日報情報登録
-            List<String> errors = service.create(rv);
+            //フォロー情報登録
+            List<String> errors = service.create(fv);
 
             if (errors.size() > 0) {
                 //登録中にエラーがあった場合
 
                 putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
-                putRequestScope(AttributeConst.REPORT, rv);//入力された日報情報
+                putRequestScope(AttributeConst.REPORT, fv);//入力された日報情報
                 putRequestScope(AttributeConst.ERR, errors);//エラーのリスト
 
-                //新規登録画面を再表示
-                forward(ForwardConst.FW_REP_NEW);
+                //従業員詳細登録画面を再表示
+                forward(ForwardConst.FW_EMP_SHOW);
 
             } else {
                 //登録中にエラーがなかった場合
@@ -146,7 +140,9 @@ public class ReportAction extends ActionBase {
                 putSessionScope(AttributeConst.FLUSH, MessageConst.I_REGISTERED.getMessage());
 
                 //一覧画面にリダイレクト
-                redirect(ForwardConst.ACT_REP, ForwardConst.CMD_INDEX);
+//                redirect(ForwardConst.ACT_EMP, ForwardConst.CMD_SHOW);
+//                ?action=Message&command=show&id=3
+                response.sendRedirect(request.getContextPath() + "/?action=Employee&command=show&id=" + follower_v.getId());
             }
         }
     }
@@ -177,7 +173,7 @@ public class ReportAction extends ActionBase {
 
             // FovoriteServiceインスタンスを生成
             FavoriteService fs = new FavoriteService();
-            // ログインしている従業員がその日報にいいねしているか判定
+            // ログインしている従業員が子の日報にいいねしているか判定
             Boolean favorite_flag = fs.getFavoriteCountByEmployeeANDReport(ev, rv);
             // この日報にいいねしている情報一覧を取得
             List<FavoriteView> favorites = fs.getFavoritesByReport(rv);
@@ -268,4 +264,39 @@ public class ReportAction extends ActionBase {
             }
         }
     }
+
+    /**
+	 * フォロー解除を行う
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	public void destroy() throws ServletException, IOException {
+
+		//CSRF対策 tokenのチェック
+		if (checkToken()) {
+
+			EmployeeService es = new EmployeeService();
+			//セッションからログイン中の従業員情報を取得
+			EmployeeView follow_v = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+
+			//リクエストパラメータからフォローする従業員インスタンスを取得
+            EmployeeView follower_v = es.findOne(toNumber(getRequestParam(AttributeConst.FOL_FOLLOWER_ID)));
+
+
+			// FollowServiceインスタンスを使ってデータベースからフォロー情報を削除
+			service.delete(follow_v, follower_v);
+
+			//セッションに登録完了のフラッシュメッセージを設定
+			putSessionScope(AttributeConst.FLUSH, MessageConst.FAV_DELETE.getMessage());
+
+			// EmployeeActionのshowメソッドへのURLを構築
+			String redirectUrl = request.getContextPath() + "/?action=" + ForwardConst.ACT_EMP.getValue() + "&command="
+					+ ForwardConst.CMD_SHOW.getValue() + "&id=" + follower_v.getId();
+
+			//URLへリダイレクト
+			response.sendRedirect(redirectUrl);
+
+		}
+	}
+
 }

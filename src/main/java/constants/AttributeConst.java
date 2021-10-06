@@ -44,12 +44,20 @@ public enum AttributeConst {
     REP_DATE("report_date"),
     REP_TITLE("title"),
     REP_CONTENT("content"),
+    REP_FLAG_LIST("flagList"),
 
 	//お気に入り管理
 	FAV_FLAG("favorite_flag"),
 	FAV_COUNT("favorites_count"),
 	FAV_FAVORITES("favorites"),
-	FAV_FAVORITES_BY_EMPLOYEE("favorites_by_employee");
+	FAV_FAVORITES_BY_EMPLOYEE("favorites_by_employee"),
+
+	//フォロー管理
+	FOL_FLAG("follow_flag"),
+	FOL_COUNT("follow_count"),
+	FOL_FOLLOWER_ID("follower_id");
+//	FOL_FAVORITES("favorites"),
+//	FAV_FAVORITES_BY_EMPLOYEE("favorites_by_employee");
 
     private final String text;
     private final Integer i;

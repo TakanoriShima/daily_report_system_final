@@ -7,10 +7,13 @@
 <c:set var="actTop" value="${ForwardConst.ACT_TOP.getValue()}" />
 <c:set var="actEmp" value="${ForwardConst.ACT_EMP.getValue()}" />
 <c:set var="actRep" value="${ForwardConst.ACT_REP.getValue()}" />
+<c:set var="actFol" value="${ForwardConst.ACT_FOL.getValue()}" />
 <c:set var="commIdx" value="${ForwardConst.CMD_INDEX.getValue()}" />
 <c:set var="commNew" value="${ForwardConst.CMD_NEW.getValue()}" />
+<c:set var="commCrt" value="${ForwardConst.CMD_CREATE.getValue()}" />
 <c:set var="commShow" value="${ForwardConst.CMD_SHOW.getValue()}" />
 <c:set var="commEdit" value="${ForwardConst.CMD_EDIT.getValue()}" />
+<c:set var="commDestroy" value="${ForwardConst.CMD_DESTROY.getValue()}" />
 
 <c:import url="/WEB-INF/views/layout/app.jsp">
     <c:param name="content">
@@ -53,6 +56,29 @@
             <a href="<c:url value='?action=${actEmp}&command=${commEdit}&id=${employee.id}' />">この従業員情報を編集する</a>
         </p>
         </c:if>
+        <c:choose>
+        	<c:when test="${sessionScope.login_employee.id != employee.id}">
+				<p></p>
+				<div>
+					<c:choose>
+						<c:when test="${follow_flag == false }" >
+							<form action="<c:url value='?action=${actFol}&command=${commCrt}' />" method="POST">
+								<input type="hidden" name="${AttributeConst.TOKEN.getValue()}" value="${_token}" />
+								<input type="hidden" name="follower_id" value="${employee.id}">
+								<button type="submit">フォロー</button>
+							</form>
+						</c:when>
+						<c:otherwise>
+							<form action="<c:url value='?action=${actFol}&command=${commDestroy}' />" method="POST">
+								<input type="hidden" name="${AttributeConst.TOKEN.getValue()}" value="${_token}" />
+								<input type="hidden" name="follower_id" value="${employee.id}">
+								<button type="submit">フォロー解除</button>
+							</form>
+						</c:otherwise>
+					</c:choose>
+				</div>
+			</c:when>
+		</c:choose>
 
 		<p></p>
 		<p></p>
